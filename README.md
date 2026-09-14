@@ -75,7 +75,7 @@ Frida 下载地址及压缩包/解压后哈希固定在 `resources/frida.json`�
 | `tools/fetch_deps.py` | 开发构建时准备 Frida 文件 |
 | `tools/package.py`、`hooks/` | Mac 独立应用打包，自动清理临时目录 |
 | `tests/` | 导入、方向、UI、缓存、退出和 Mac 首次准备回归 |
-| `licenses/`、`LICENSE` | 第三方归属、许可证及源码来源 |
+| `licenses/` | 第三方归属、许可证及源码来源 |
 | `docs/MAC_RELEASE.md` | Mac 分发边界、签名和验证说明 |
 
 不包含游戏 APK、`libg.so`、游戏资源、模拟器、玩家 HTML、个人设置、旧实验记录或历史构建目录。大体积应用只放在 Releases，不进入 Git 历史；Frida 官方二进制也不进 Git。
@@ -86,4 +86,4 @@ HTML 没有原局随机种子和秘密初手。程序计算相容牌序，因此
 
 整场演算后每个 tick 都有快照，跳转不依赖从开局重新追赶。序列化缓存上限 256 MiB，游戏时钟最多演算到 6 分钟，换局和正常退出清理缓存。游戏升级后可能需要修改原生偏移、布局与资源适配，不能只修改版本号。
 
-基于 [Jason-XII/Clash-Royale-Battle-Engine](https://github.com/Jason-XII/Clash-Royale-Battle-Engine) 与 [FirstLight CR](https://gitlab.com/firstlight3/FirstLight_CR)。保留 FirstLight Apache-2.0 许可及归属声明；不隶属于 Supercell，游戏及第三方库的权利归各自权利人。
+基于 [Jason-XII/Clash-Royale-Battle-Engine](https://github.com/Jason-XII/Clash-Royale-Battle-Engine) 与 [FirstLight CR](https://gitlab.com/firstlight3/FirstLight_CR)。本仓库目前为私有测试版本，暂未为项目整体指定开源许可证。上游及第三方组件保留各自许可证和归属声明；不隶属于 Supercell，游戏及第三方库的权利归各自权利人。
