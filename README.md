@@ -1,89 +1,82 @@
 # Clash Royale Replay Studio
 
-Mac 上的 RoyaleAPI HTML 对局回放工具。导入保存的独立对局 HTML，在 MuMu 中通过 Nulls Royale 的原生游戏画面观看回放。支持暂停、逐 tick 缓存跳转及 0.25×～16× 倍速。
+导入保存的 RoyaleAPI **独立对局 HTML**，在 Mac MuMu 中通过 Nulls Royale 原生游戏画面观看回放。支持暂停、时间轴瞬间跳转和 0.25×～16× 倍速。
 
-**当前是 Mac Apple Silicon 测试版。Windows 暂不支持。**
+当前为 **Mac Apple Silicon 私有测试版**。暂不支持 Windows、Intel Mac 或任意最新版 Nulls。
 
-## 普通用户怎么用
+## 下载与使用
 
-从本仓库 [Releases](https://github.com/ak1NaN/ClashRoyale-replay-studio/releases) 下载 Mac 应用压缩包，解压后打开 `Replay Studio.app`。无需安装 Python、Qt、Frida、Android SDK 或编译工具。
+从 [Releases](https://github.com/ak1NaN/ClashRoyale-replay-studio/releases) 下载 `ReplayStudio-macOS-arm64.zip`，解压打开 `.app`。**无需安装 Python、Qt、Frida 或 Android SDK。**
 
-1. 安装并手动打开 Mac MuMu，开启模拟器 root，等待安卓桌面就绪。
-2. 在模拟器安装 **Nulls Royale 15.535.13**，完成首次联网资源下载；已验证资源为 **15.535.86**。随后退出游戏。
-3. 打开 Replay Studio，导入已保存的 RoyaleAPI **独立对局 HTML**。
-4. 点击 **准备回放**。程序自动使用 MuMu 的 ADB、部署配套组件、让游戏断网，并高速缓存整场对局。
-5. 准备完成后播放，或拖动时间轴跳转。画面显示在模拟器里。
-6. 正常退出会清理回放缓存、停止 Frida 服务、恢复游戏联网并打开普通游戏。
+1. 手动启动 Mac MuMu，开启模拟器 root，等待安卓桌面就绪。
+2. 安装 Nulls Royale **15.535.13**，完成首次联网资源下载；已验证资源为 **15.535.86**。建议随后退出游戏。
+3. 打开 Replay Studio，导入 HTML，点击 **准备回放**。
+4. 程序自动使用 MuMu 的 ADB、部署配套组件、让游戏断网，先无画面演算并缓存整场，再打开游戏回放画面。
+5. 播放、暂停或拖动时间轴；换局时重新导入 HTML。
+6. 正常退出会清理缓存、停止 Frida、恢复游戏联网并打开普通游戏。
 
-程序不安装 MuMu 或游戏，不更换游戏版本，也不修改 macOS 安全设置。只导入 HTML 不会断网；首次组件部署只在准备回放时进行。Frida 服务文件保留在模拟器中，退出时停止，下次自动复用。
+仅导入 HTML 不会断网。程序不会下载游戏、升级游戏或自动启动模拟器。多实例、非标准安装路径时，在连接设置中指定 ADB 和端口；默认端口为 `127.0.0.1:16384`。[MuMu 官方 ADB 说明](https://www.mumuplayer.com/help/mac/connect-adb.html)。
 
-**兼容条件：** ARM64 Android、可用 root、匹配的 `libg.so` 以及游戏资源。安装了任意最新版 Nulls 并不代表兼容。版本不匹配时程序会拒绝注入。Mac Intel、其他模拟器和其他 Nulls 版本尚未验证。
+此测试版尚未经过 Apple Developer ID 签名与公证，首次下载可能被 macOS 阻止。请核对来源，使用系统提供的正常允许打开流程；程序不会关闭系统安全设置。
 
-### 首次打开与连接问题
+## 仓库结构
 
-- 此测试版只有本地签名，**尚未经过 Apple Developer ID 签名与公证**。从网络下载后 macOS 可能阻止首次打开；请自行核对来源并使用系统设置中的正常允许打开流程。程序不会关闭 Gatekeeper。
-- 程序优先寻找标准安装目录中的 MuMu ADB。MuMu 不在标准目录、使用多个实例或非默认端口时，在 **连接设置** 中指定 ADB 和设备地址。
-- 默认地址 `127.0.0.1:16384`。设备端口可在 MuMu 的工具菜单中查看：[官方 ADB 说明](https://www.mumuplayer.com/help/mac/connect-adb.html)。
-- 如果提示 root 不可用，请在 MuMu 设置中启用并按模拟器要求重启。
+本仓库只维护回放应用。训练观测、批量客户端、手动演示脚本和旧部署入口已移除。
 
-## 依赖如何处理
+```text
+app/          回放应用代码、卡牌表和界面资源
+resources/    编译好的原生探针、兼容版本和依赖校验信息
+tools/        下载构建依赖和打包 Mac 应用
+tests/        回放功能回归测试
+licenses/     上游与第三方许可、归属说明
+run.py        源码启动入口
+requirements.txt  应用依赖
+```
 
-| 内容 | 由谁准备 |
+| `app/` 中的文件 | 作用 |
 | --- | --- |
-| MuMu、匹配的 Nulls 和首次游戏资源下载 | 用户 |
-| 模拟器 root / ADB 可连接 | 用户开启，程序检查 |
-| Python、Qt、Frida Mac 客户端 | 内置于 `.app` |
-| ADB | 直接使用已安装 MuMu 自带的工具，不额外分发 SDK |
-| Android Frida 服务 | 内置固定版本压缩包，首次准备时校验并自动部署 |
-| 原生回放探针 | 内置于 `.app`，版本校验后注入 |
-| HTML、设置和缓存 | HTML 由用户提供；设置本地保存；缓存仅驻留内存 |
+| `gui.py` | 窗口、导入、时间轴、倍速和工作线程 |
+| `runtime.py` | 预演算、逐 tick 缓存、播放、换局和退出清理 |
+| `device.py` | MuMu 连接、root、Frida 安装、版本检查、断网及注入 |
+| `importer.py` | 卡牌/等级/形态校验、方向转换、相容初手计算 |
+| `html_events.py` | 从保存的 HTML 提取出牌和技能事件，不执行网页脚本 |
+| `engine.py` | 回放所需的引擎通信、初始化和播放控制 |
+| `protocol.py` | 解析原生状态和手牌等数据 |
+| `match_config.py`、`standard_match.json` | 构造对局配置 |
+| `catalog.json` | 卡牌 ID、别名、稀有度和形态映射 |
+| `icon.svg`、`__init__.py` | 图标及 Python 包标记 |
 
-## 开发者
+`resources/libcrprobe.so` 是真正执行游戏逻辑的原生探针。当前版本与已验证引擎一致，未修改原生战斗逻辑。
+原生源码、编译脚本及上游测试保存在固定的 [v0.1.0 引擎基线](https://github.com/ak1NaN/ClashRoyale-replay-studio/tree/v0.1.0-macos-preview/vendor/firstlight)，其源码和二进制哈希记录在 `resources/provenance.json`。以后适配游戏版本时在引擎工程修改并编译，再更新这里的探针和兼容清单。
 
-普通用户只下载 Release；以下环境只供开发者构建。
+## 从源码开发
+
+普通用户只需要 Release 应用。开发者使用 ARM64 Python 3.12，在仓库根目录执行：
 
 ```sh
 python3.12 -m venv .venv
-arch -arm64 .venv/bin/python -m pip install -r requirements-build.txt
+arch -arm64 .venv/bin/python -m pip install -r tools/requirements.txt
 arch -arm64 .venv/bin/python tools/fetch_deps.py
 arch -arm64 .venv/bin/python -m unittest discover -s tests
-arch -arm64 .venv/bin/python run_desktop.py
+arch -arm64 .venv/bin/python run.py
+# 关闭待覆盖的应用后打包
 arch -arm64 .venv/bin/python tools/package.py
 ```
 
-Frida 下载地址及压缩包/解压后哈希固定在 `resources/frida.json`。**应用运行时不下载依赖**，开发构建时才从官方 Release 拉取。Python、Qt 与 Frida 必须都是 ARM64。
+Frida 固定版本、官方来源和哈希见 `resources/frida.json`。构建时下载，应用运行时不下载依赖。打包过程自动清理中间文件。发布压缩包：
 
-仓库包含当前 `build/libcrprobe.so` 及来源记录，因此构建 GUI 不要求 NDK。修改原生源码时设置 `ANDROID_NDK_HOME` 或 `CXX`，再运行 `build_local_probe.py`。源码运行使用同目录 `data/`；独立应用默认使用 `~/Library/Application Support/ReplayStudio/`，可用 `REPLAY_STUDIO_DATA` 覆盖。不要同时用多个程序控制同一游戏实例。
+```sh
+ditto -c -k --keepParent 'dist/Replay Studio.app' dist/ReplayStudio-macOS-arm64.zip
+shasum -a 256 dist/ReplayStudio-macOS-arm64.zip
+```
 
-## 文件结构
+源码设置在 `data/`，独立应用默认在 `~/Library/Application Support/ReplayStudio/`；可通过 `REPLAY_STUDIO_DATA` 覆盖。逐 tick 缓存只在内存中，换局和正常退出清理。
 
-| 文件/目录 | 职责 |
-| --- | --- |
-| `run_desktop.py`、`start.command` | Mac 源码入口 |
-| `desktop/gui.py` | 简洁控制界面和工作线程 |
-| `desktop/importer.py`、`catalog.json` | 卡牌映射、等级/形态、朝向和相容初手 |
-| `desktop/device.py` | ADB、root、Frida 部署、版本校验、断网及游戏连接 |
-| `desktop/runtime.py` | 预演算、快照缓存、播放、跳转和退出恢复 |
-| `replay_import/` | HTML 事件提取和技能转换 |
-| `engine.py`、`protocol.py`、`match_config.py` | 单场/原生画面引擎 API、数据协议和对局配置 |
-| `batch.py`、`observation.py` | 保留的批量训练接口与观测提取，GUI 不展示 |
-| `bootstrap_emulator.py`、`standard_match.json` | 底层设备辅助和默认对局 |
-| `vendor/firstlight/` | 原生源码、版本清单和上游许可证 |
-| `build/libcrprobe.so`、`provenance.json` | 当前探针及编译来源 |
-| `build_local_probe.py` | 原生探针构建 |
-| `resources/frida.json` | 固定依赖版本、来源和哈希 |
-| `tools/fetch_deps.py` | 开发构建时准备 Frida 文件 |
-| `tools/package.py`、`hooks/` | Mac 独立应用打包，自动清理临时目录 |
-| `tests/` | 导入、方向、UI、缓存、退出和 Mac 首次准备回归 |
-| `licenses/` | 第三方归属、许可证及源码来源 |
-| `docs/MAC_RELEASE.md` | Mac 分发边界、签名和验证说明 |
+## 兼容边界
 
-不包含游戏 APK、`libg.so`、游戏资源、模拟器、玩家 HTML、个人设置、旧实验记录或历史构建目录。大体积应用只放在 Releases，不进入 Git 历史；Frida 官方二进制也不进 Git。
+- 需要 ARM64 Android、root、匹配的 `libg.so` 和资源；游戏更新后可能需要重新适配引擎，不能只改版本号。
+- HTML 缺少原始随机种子与秘密初手，因此这是相容的重建模拟，不能保证每局的时间、伤害和结局与原局完全一致。
+- 缓存上限为 256 MiB 序列化状态，最多演算到游戏时钟 6 分钟；遇到不支持的卡牌或失败动作会停止。
+- 本地已验证 MuMu 1.4.11 上的组件部署、连续两局、精确跳转和退出恢复；尚未完成另一台干净 Mac 的分发验证。
 
-## 重建模拟的边界
-
-HTML 没有原局随机种子和秘密初手。程序计算相容牌序，因此是重建模拟，不能保证每局的时间、伤害和结局与原局完全一致。无法识别的卡牌或形态会明确报错，不会偷偷替换。
-
-整场演算后每个 tick 都有快照，跳转不依赖从开局重新追赶。序列化缓存上限 256 MiB，游戏时钟最多演算到 6 分钟，换局和正常退出清理缓存。游戏升级后可能需要修改原生偏移、布局与资源适配，不能只修改版本号。
-
-基于 [Jason-XII/Clash-Royale-Battle-Engine](https://github.com/Jason-XII/Clash-Royale-Battle-Engine) 与 [FirstLight CR](https://gitlab.com/firstlight3/FirstLight_CR)。本仓库目前为私有测试版本，暂未为项目整体指定开源许可证。上游及第三方组件保留各自许可证和归属声明；不隶属于 Supercell，游戏及第三方库的权利归各自权利人。
+基于 [Clash-Royale-Battle-Engine](https://github.com/Jason-XII/Clash-Royale-Battle-Engine) 与 [FirstLight CR](https://gitlab.com/firstlight3/FirstLight_CR)。本仓库目前为私有测试版本，暂未为项目整体指定开源许可证。上游和第三方组件的许可保留在 `licenses/`。不包含游戏、MuMu、玩家 HTML 或个人设置，不隶属于 Supercell。

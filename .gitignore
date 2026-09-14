@@ -5,7 +5,5 @@ __pycache__/
 .idea/
 data/
 dist/
+build/
 resources/frida-server*
-build/*
-!build/libcrprobe.so
-!build/provenance.json
