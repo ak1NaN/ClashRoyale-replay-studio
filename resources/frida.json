@@ -1,0 +1,7 @@
+{
+  "version": "17.17.0",
+  "file": "frida-server-17.17.0-android-arm64.xz",
+  "url": "https://github.com/frida/frida/releases/download/17.17.0/frida-server-17.17.0-android-arm64.xz",
+  "archive_sha256": "09d1fad867b27d69562a79289f4c412e85867f5d38ab72877036ed35e4223021",
+  "sha256": "55ef78c3f3e7a55122ca7e0051e2a356d0ff1d9744d84c1660291f90400588e7"
+}
