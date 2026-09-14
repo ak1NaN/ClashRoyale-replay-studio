@@ -33,7 +33,7 @@ def make_match(
         )
     if len(towers) != 2 or len(names) != 2:
         raise ValueError("provide two tower IDs and two names")
-    match = json.loads(Path(__file__).with_name("standard_match.json").read_text())
+    match = json.loads(Path(__file__).with_name("standard_match.json").read_text(encoding="utf-8-sig"))
     battle = match["battle"]
     battle["lvlcap"] = battle["cardlvlmin"] = level
     for owner in range(2):

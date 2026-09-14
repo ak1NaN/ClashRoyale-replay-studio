@@ -42,7 +42,7 @@ SETTINGS = DATA / "settings.json"
 
 
 def defaults():
-    exe = "adb.exe" if os.name == "nt" else "adb"
+    exe = "adb.exe" if sys.platform == "win32" else "adb"
     candidates = [APP_DIR / "platform-tools" / exe, APP_DIR / exe]
     if sys.platform == "darwin":
         for base in (Path("/Applications"), Path.home() / "Applications"):
@@ -50,6 +50,16 @@ def defaults():
                 base
                 / "MuMuPlayer.app/Contents/MacOS/MuMuEmulator.app/Contents/MacOS/tools/adb"
             )
+    if sys.platform == "win32":
+        for key in ("ProgramFiles", "ProgramFiles(x86)", "LOCALAPPDATA"):
+            base = os.environ.get(key)
+            if base:
+                for relative in ("Netease/MuMu/nx_device/12.0/shell/adb.exe",
+                                 "Netease/MuMuPlayer-12.0/shell/adb.exe",
+                                 "Netease/MuMuPlayerGlobal-12.0/shell/adb.exe",
+                                 "MuMuPlayer-12.0/shell/adb.exe",
+                                 "Nemu/vmonitor/bin/adb_server.exe"):
+                    candidates.append(Path(base) / relative)
     for name in ("ANDROID_HOME", "ANDROID_SDK_ROOT"):
         if os.environ.get(name):
             candidates.append(Path(os.environ[name]) / "platform-tools" / exe)
@@ -72,7 +82,7 @@ def defaults():
 def settings():
     cfg = defaults()
     if SETTINGS.exists():
-        saved = json.loads(SETTINGS.read_text())
+        saved = json.loads(SETTINGS.read_text(encoding="utf-8-sig"))
         cfg.update({k: v for k, v in saved.items() if k in cfg})
     adb = os.path.expandvars(os.path.expanduser(cfg["adb"]))
     if not Path(adb).is_absolute() and ("/" in adb or "\\" in adb):
@@ -82,8 +92,10 @@ def settings():
 
 
 def run(args, timeout=30, check=True):
+    options = {"creationflags": subprocess.CREATE_NO_WINDOW} if sys.platform == "win32" else {}
     p = subprocess.run(
-        [str(a) for a in args], capture_output=True, text=True, timeout=timeout
+        [str(a) for a in args], capture_output=True, text=True,
+        encoding="utf-8", errors="replace", timeout=timeout, **options
     )
     if check and p.returncode:
         raise RuntimeError(p.stderr.strip() or p.stdout.strip() or "命令执行失败")
@@ -236,19 +248,19 @@ class DeviceSession:
             self.adb("wait-for-device")
         if self.shell("id", "-u").stdout.strip() != "0":
             raise RuntimeError(
-                "请在 MuMu 中开启 root 权限后重试；程序不会修改 macOS 权限"
+                "请在 MuMu 中开启 root 权限后重试；程序不会修改电脑系统权限"
             )
 
     def install_frida(self):
         """Deploy the bundled, hash-pinned server; never download at runtime."""
-        manifest = json.loads((ROOT / "resources/frida.json").read_text())
+        manifest = json.loads((ROOT / "resources/frida.json").read_text(encoding="utf-8-sig"))
         remote = "/data/local/tmp/frida-server"
         installed = self.shell("sha256sum", remote, check=False).stdout.split()
         if installed and installed[0] == manifest["sha256"]:
             return
         archive = ROOT / "resources" / manifest["file"]
         if not archive.is_file():
-            raise RuntimeError("缺少内置 Frida 服务，请重新下载完整 Mac 应用")
+            raise RuntimeError("缺少 Frida 服务：源码运行请执行 tools/fetch_deps.py；独立应用请重新下载完整压缩包")
         packed = archive.read_bytes()
         if hashlib.sha256(packed).hexdigest() != manifest["archive_sha256"]:
             raise RuntimeError("内置 Frida 服务校验失败，请重新下载应用")
@@ -278,12 +290,12 @@ class DeviceSession:
         abi = self.shell("getprop", "ro.product.cpu.abi").stdout.strip()
         if abi != "arm64-v8a":
             raise RuntimeError(
-                f"当前设备为 {abi}；此引擎需要 ARM64 Android，不能直接注入 x86 游戏进程"
+                f"当前设备为 {abi}；当前探针仅支持原生 ARM64 Android；x86/ARM 转译注入尚未适配，已停止准备，不会断网"
             )
         self.ensure_root()
         directory = self.app_directory()
         libdir = directory / "lib/arm64"
-        manifest = json.loads((ROOT / "resources/engine.json").read_text())
+        manifest = json.loads((ROOT / "resources/engine.json").read_text(encoding="utf-8-sig"))
         actual = self.shell("sha256sum", libdir / "libg.so").stdout.split()[0]
         if actual != manifest["libg_sha256"]:
             raise RuntimeError("游戏版本不匹配，需要 Nulls Royale 15.535.13 对应资源")

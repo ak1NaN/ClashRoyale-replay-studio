@@ -53,7 +53,7 @@ class Worker(QObject):
                 result = getattr(self.runtime, kind)()
             self.finished.emit(kind, result)
         except Exception as e:
-            with (DATA / "errors.log").open("a") as f:
+            with (DATA / "errors.log").open("a", encoding="utf-8") as f:
                 f.write(traceback.format_exc() + "\n")
             self.failed.emit(kind, str(e))
 
@@ -93,7 +93,7 @@ class SettingsDialog(QDialog):
             c["port"] = int(c["port"])
             if not 1024 <= c["port"] <= 65535:
                 raise ValueError()
-            SETTINGS.write_text(json.dumps(c, ensure_ascii=False, indent=2))
+            SETTINGS.write_text(json.dumps(c, ensure_ascii=False, indent=2), encoding="utf-8")
             self.accept()
         except Exception:
             QMessageBox.warning(self, "设置无效", "请检查 ADB 程序、设备地址和端口。")

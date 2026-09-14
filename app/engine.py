@@ -65,7 +65,7 @@ class Engine:
         match = (
             deepcopy(match)
             if match is not None
-            else json.loads(Path(__file__).with_name("standard_match.json").read_text())
+            else json.loads(Path(__file__).with_name("standard_match.json").read_text(encoding="utf-8-sig"))
         )
         match["rndSeed"] = seed
         self.request("configure " + json.dumps(match, separators=(",", ":")))
@@ -84,7 +84,7 @@ class RenderedEngine(Engine):
         match = (
             deepcopy(match)
             if match is not None
-            else json.loads(Path(__file__).with_name("standard_match.json").read_text())
+            else json.loads(Path(__file__).with_name("standard_match.json").read_text(encoding="utf-8-sig"))
         )
         match["rndSeed"] = seed
         status = self.request("status")

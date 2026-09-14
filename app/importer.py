@@ -12,7 +12,7 @@ from .html_events import extract
 
 SEED = 1784463263
 LAYOUT = (((2, 0, 4, 7), (6, 1, 3, 5)), ((7, 1, 4, 3), (6, 0, 2, 5)))
-CATALOG = json.loads(Path(__file__).with_name("catalog.json").read_text())["cards"]
+CATALOG = json.loads(Path(__file__).with_name("catalog.json").read_text(encoding="utf-8-sig"))["cards"]
 BY_ID = {c["id"]: c for c in CATALOG}
 TOWERS = {
     "tower-princess": 159000000,
@@ -159,7 +159,7 @@ def choose(ids, plays, layout, fixed=None):
 
 
 def convert(path, url=None):
-    raw = Path(path).read_text()
+    raw = Path(path).read_text(encoding="utf-8-sig")
     if url is None:
         metadata = Tree()
         metadata.feed(raw)
