@@ -2,7 +2,7 @@
 
 导入保存的 RoyaleAPI **独立对局 HTML**，在 Mac MuMu 中通过 Nulls Royale 原生游戏画面观看回放。支持暂停、时间轴瞬间跳转和 0.25×～16× 倍速。
 
-当前为 **Mac Apple Silicon 私有测试版**。暂不支持 Windows、Intel Mac 或任意最新版 Nulls。
+当前为 **Mac Apple Silicon 公开测试版**。暂不支持 Windows、Intel Mac 或任意最新版 Nulls。
 
 ## 下载与使用
 
@@ -108,4 +108,4 @@ shasum -a 256 dist/ReplayStudio-macOS-arm64.zip
 - 缓存上限为 256 MiB 序列化状态，最多演算到游戏时钟 6 分钟；遇到不支持的卡牌或失败动作会停止。
 - 本地已验证 MuMu 1.4.11 上的组件部署、连续两局、精确跳转和退出恢复；尚未完成另一台干净 Mac 的分发验证。
 
-基于 [Clash-Royale-Battle-Engine](https://github.com/Jason-XII/Clash-Royale-Battle-Engine) 与 [FirstLight CR](https://gitlab.com/firstlight3/FirstLight_CR)。本仓库目前为私有测试版本，暂未为项目整体指定开源许可证。上游和第三方组件的许可保留在 `licenses/`。不包含游戏、MuMu、玩家 HTML 或个人设置，不隶属于 Supercell。
+基于 [Clash-Royale-Battle-Engine](https://github.com/Jason-XII/Clash-Royale-Battle-Engine) 与 [FirstLight CR](https://gitlab.com/firstlight3/FirstLight_CR)。本仓库目前为公开测试版本，暂未为项目整体指定开源许可证。上游和第三方组件的许可保留在 `licenses/`。不包含游戏、MuMu、玩家 HTML 或个人设置，不隶属于 Supercell。
