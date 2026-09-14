@@ -68,14 +68,26 @@ requirements.txt  应用依赖
 
 ## 从源码开发
 
-普通用户只需要 Release 应用。开发者使用 ARM64 Python 3.12，在仓库根目录执行：
+普通用户可以直接下载 Release 应用。运行源码需要 **Apple Silicon Mac 和 ARM64 Python 3.12**。下载 GitHub 的 **Source code (zip)** 并解压，在终端进入解压后的仓库根目录（能看到 `run.py` 和 `requirements.txt` 的目录）。
+
+**直接运行源码：**
 
 ```sh
 python3.12 -m venv .venv
-arch -arm64 .venv/bin/python -m pip install -r tools/requirements.txt
+arch -arm64 .venv/bin/python -m pip install -r requirements.txt
 arch -arm64 .venv/bin/python tools/fetch_deps.py
-arch -arm64 .venv/bin/python -m unittest discover -s tests
 arch -arm64 .venv/bin/python run.py
+```
+
+第一次安装依赖和下载 Frida 需要联网。若提示 `python3.12: command not found`，请先安装 Python 3.12 的 macOS 版本。无需自行编译原生探针，仓库已包含配套文件。
+
+启动前先打开 MuMu、开启 root，并准备好上文列出的匹配游戏版本及资源。窗口打开后导入独立对局 HTML，点击 **准备回放**。以后再次运行只需在同一目录执行最后一条命令。
+
+**可选：测试和打包为独立 App。** 仅打包时需要 PyInstaller：
+
+```sh
+arch -arm64 .venv/bin/python -m pip install -r tools/requirements.txt
+arch -arm64 .venv/bin/python -m unittest discover -s tests
 # 关闭待覆盖的应用后打包
 arch -arm64 .venv/bin/python tools/package.py
 ```
