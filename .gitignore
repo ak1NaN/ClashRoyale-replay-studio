@@ -7,3 +7,5 @@ data/
 dist/
 build/
 resources/frida-server*
+
+device-report.json

@@ -1,3 +1,47 @@
+# Windows 开发分支（尚未完成回放实机验证）
+
+此分支已加入 Windows GUI、UTF-8 文件读写、MuMu ADB 路径发现与 Windows 打包入口。
+**当前原生探针仍仅支持原生 ARM64 Android。Windows MuMu 若使用 x86_64 + ARM 转译，程序会停止准备，不会断网；这一组合尚不能保证回放。**
+
+## Windows 源码启动
+
+安装 64 位 Python 3.12，解压源码，在仓库根目录打开 PowerShell：
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe tools/fetch_deps.py
+.\.venv\Scripts\python.exe run.py
+```
+
+先手动启动 MuMu，在其设置中查看 ADB 端口并开启 root。应用的连接设置可手动填写 MuMu 内的 `adb.exe`（旧版可能叫 `adb_server.exe`）和设备地址；默认 `127.0.0.1:16384` 不一定适用于所有版本/实例。不需要以管理员身份启动本程序。
+
+## 第一次测试请提供设备报告
+
+保存连接设置后，在同一 PowerShell 执行：
+
+```powershell
+.\.venv\Scripts\python.exe tools/check_device.py
+```
+
+把生成的 `device-report.json` 连同 MuMu 版本发回用于适配。报告只读取 Android 架构、Native Bridge、root 状态与游戏版本；不注入、不让游戏断网。此文件不提交仓库。
+
+## Windows 打包（必须在 Windows 上执行）
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r tools/requirements.txt
+.\.venv\Scripts\python.exe -m unittest discover -s tests
+.\.venv\Scripts\python.exe tools/package.py
+```
+
+输出为 `dist/Replay Studio/Replay Studio.exe`，分发时压缩整个 `Replay Studio` 目录，不能只复制 exe。普通安装的设置位于 `%LOCALAPPDATA%/ReplayStudio`，在 exe 旁放 `portable.flag` 可改为同目录 `data/`。
+
+参考 IMAX9D 的[指定提交](https://github.com/IMAX9D/cr-native-sandbox/commit/64926887a5673126fb924d8d4c4e3a8ac210a3e0)：其 MuMu 路线使用外部 x86_64 读取器读取 ARM64 游戏内存，以普通触屏下牌；这不提供本项目需要的对局创建、原生快照恢复和无画面预演算。当前分支不复制其不同版本的游戏偏移。
+
+Windows 回放验证通过前，不合并主分支、不替换 Mac Release。MuMu ADB 参考：[官方说明](https://www.mumuplayer.com/help/win/developers-essentials-manual.html)。
+
+---
+
 # Clash Royale Replay Studio
 
 导入保存的 RoyaleAPI **独立对局 HTML**，在 Mac MuMu 中通过 Nulls Royale 原生游戏画面观看回放。支持暂停、时间轴瞬间跳转和 0.25×～16× 倍速。
