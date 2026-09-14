@@ -10,7 +10,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 DATA_FILES = (
     "app/catalog.json",
-    "app/icon.svg",
+    "app/icon.png",
     "app/standard_match.json",
     "resources/engine.json",
     "resources/libcrprobe.so",
@@ -29,6 +29,19 @@ def main():
     (ROOT / "build").mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="package-", dir=ROOT / "build") as temp:
         stage = Path(temp)
+        iconset = stage / "ReplayStudio.iconset"
+        iconset.mkdir()
+        for size in (16, 32, 128, 256, 512):
+            for scale in (1, 2):
+                pixels = str(size * scale)
+                suffix = "@2x" if scale == 2 else ""
+                subprocess.run(
+                    ["sips", "-z", pixels, pixels, str(ROOT / "app/icon.png"),
+                     "--out", str(iconset / f"icon_{size}x{size}{suffix}.png")],
+                    check=True, stdout=subprocess.DEVNULL,
+                )
+        icon = stage / "ReplayStudio.icns"
+        subprocess.run(["iconutil", "-c", "icns", str(iconset), "-o", str(icon)], check=True)
         cmd = [
             sys.executable,
             "-m",
@@ -36,6 +49,8 @@ def main():
             "--noconfirm",
             "--clean",
             "--windowed",
+            "--icon",
+            str(icon),
             "--onedir",
             "--name",
             "Replay Studio",
