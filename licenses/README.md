@@ -1,7 +1,7 @@
 # Third-party notices
 
 Replay Studio is derived from Jason-XII/Clash-Royale-Battle-Engine and FirstLight CR.
-Original FirstLight notices and Apache-2.0 terms are in vendor/firstlight/.
+Original FirstLight notices and Apache-2.0 terms are in FirstLight-LICENSE and FirstLight-NOTICE.
 Local changes add the HTML importer, desktop interface, per-tick replay cache,
 device setup, and macOS distribution tools. No game APK, libg.so, resource pack,
 MuMu binary, or saved player HTML is distributed.
