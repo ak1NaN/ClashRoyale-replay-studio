@@ -326,7 +326,7 @@ def main():
             None, "Replay Studio", "程序已经运行，请切换到已打开的窗口。"
         )
         return
-    app.setWindowIcon(QIcon(str(Path(__file__).with_name("icon.svg"))))
+    app.setWindowIcon(QIcon(str(Path(__file__).with_name("icon.png"))))
     window = Window()
     window.show()
     sys.exit(app.exec())
