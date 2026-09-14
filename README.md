@@ -19,6 +19,22 @@
 
 此测试版尚未经过 Apple Developer ID 签名与公证，首次下载可能被 macOS 阻止。请核对来源，使用系统提供的正常允许打开流程；程序不会关闭系统安全设置。
 
+## 如何从 RoyaleAPI 获取对局 HTML
+
+**1. 找到要观看的对局。** 在 RoyaleAPI 玩家页面的 Battles（对战记录）中找到目标对局，点击图中橙色回放按钮。如果网站要求登录，请先登录。
+
+![在玩家对战记录中点击橙色回放按钮](docs/tuto1.png)
+
+**2. 打开独立对局页面。** 展开回放后向下滚动，在统计表下方点击 **Permalink**，进入只包含这一局的页面。
+
+![点击统计表下方的 Permalink](docs/tuto2.png)
+
+**3. 保存 HTML 并导入。** 等待独立对局页面加载完成，在 Mac 上按 **⌘S**（Windows 为 Ctrl+S）。如图选择 **页面源码**；其他浏览器可选择 **网页，仅 HTML**。保存为 `.html` 文件，然后在 Replay Studio 中点击 **导入 HTML** 选择它。
+
+![将独立对局页面保存为 HTML 页面源码](docs/tuto3.png)
+
+截图中的快捷键标注为 Ctrl+S，Mac 请使用 ⌘S。请保存独立对局页面的 HTML，不要保存为 PDF、截图或 `.webarchive`，也不要保存整个玩家的对战列表页。
+
 ## 仓库结构
 
 本仓库只维护回放应用。训练观测、批量客户端、手动演示脚本和旧部署入口已移除。
@@ -27,6 +43,7 @@
 app/          回放应用代码、卡牌表和界面资源
 resources/    编译好的原生探针、兼容版本和依赖校验信息
 tools/        下载构建依赖和打包 Mac 应用
+docs/         获取对局 HTML 的三张教程截图
 tests/        回放功能回归测试
 licenses/     上游与第三方许可、归属说明
 run.py        源码启动入口
@@ -44,7 +61,7 @@ requirements.txt  应用依赖
 | `protocol.py` | 解析原生状态和手牌等数据 |
 | `match_config.py`、`standard_match.json` | 构造对局配置 |
 | `catalog.json` | 卡牌 ID、别名、稀有度和形态映射 |
-| `icon.svg`、`__init__.py` | 图标及 Python 包标记 |
+| `icon.png`、`__init__.py` | 图标及 Python 包标记 |
 
 `resources/libcrprobe.so` 是真正执行游戏逻辑的原生探针。当前版本与已验证引擎一致，未修改原生战斗逻辑。
 原生源码、编译脚本及上游测试保存在固定的 [v0.1.0 引擎基线](https://github.com/ak1NaN/ClashRoyale-replay-studio/tree/v0.1.0-macos-preview/vendor/firstlight)，其源码和二进制哈希记录在 `resources/provenance.json`。以后适配游戏版本时在引擎工程修改并编译，再更新这里的探针和兼容清单。
