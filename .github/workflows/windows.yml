@@ -1,0 +1,38 @@
+name: Windows preview build
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/windows]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - run: python -m pip install -r tools/requirements.txt
+      - run: python tools/fetch_deps.py
+      - run: python -m unittest discover -s tests
+      - run: python tools/package.py
+      - name: Archive whole application directory
+        shell: pwsh
+        run: |
+          Compress-Archive -Path 'dist/Replay Studio' -DestinationPath dist/ReplayStudio-Windows-x64-preview.zip
+          $hash = (Get-FileHash dist/ReplayStudio-Windows-x64-preview.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  ReplayStudio-Windows-x64-preview.zip" | Set-Content -Encoding ascii dist/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ReplayStudio-Windows-x64-preview
+          path: |
+            dist/ReplayStudio-Windows-x64-preview.zip
+            dist/SHA256SUMS.txt
+          retention-days: 14
+          if-no-files-found: error
