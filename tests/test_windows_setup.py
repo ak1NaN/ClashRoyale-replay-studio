@@ -8,9 +8,9 @@ from app import device
 class WindowsSetupTests(TestCase):
     def test_windows_mumu_adb_discovery(self):
         with patch.object(device.sys, 'platform', 'win32'), patch.dict(
-            device.os.environ, {'ProgramFiles': 'C:/Program Files'}, clear=True
-        ), patch.object(device.Path, 'is_file', lambda p: str(p).endswith('Netease/MuMuPlayer-12.0/shell/adb.exe')):
-            self.assertTrue(device.defaults()['adb'].endswith('MuMuPlayer-12.0/shell/adb.exe'))
+            device.os.environ, {'ProgramFiles': 'C:/Program Files'}
+        ), patch.object(device.Path, 'is_file', lambda p: p.as_posix().endswith('Netease/MuMuPlayer-12.0/shell/adb.exe')):
+            self.assertTrue(device.Path(device.defaults()['adb']).as_posix().endswith('MuMuPlayer-12.0/shell/adb.exe'))
 
     def test_adb_hidden_console_and_utf8(self):
         with patch.object(device.sys, 'platform', 'win32'), patch.object(

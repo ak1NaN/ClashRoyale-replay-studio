@@ -15,7 +15,7 @@ class MacSetupTests(TestCase):
         with patch.object(device.sys, "platform", "darwin"), patch.object(
             device.Path,
             "is_file",
-            lambda p: str(p).endswith("MuMuEmulator.app/Contents/MacOS/tools/adb"),
+            lambda p: p.as_posix().endswith("MuMuEmulator.app/Contents/MacOS/tools/adb"),
         ):
             self.assertIn("MuMuPlayer.app", device.defaults()["adb"])
 
