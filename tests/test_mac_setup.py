@@ -12,7 +12,7 @@ from app import device
 
 class MacSetupTests(TestCase):
     def test_mumu_adb_is_found_without_sdk(self):
-        with patch.object(
+        with patch.object(device.sys, "platform", "darwin"), patch.object(
             device.Path,
             "is_file",
             lambda p: str(p).endswith("MuMuEmulator.app/Contents/MacOS/tools/adb"),
