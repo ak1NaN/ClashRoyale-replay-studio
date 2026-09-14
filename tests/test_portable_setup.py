@@ -4,8 +4,8 @@ from types import SimpleNamespace
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from test_ability_import import ROOT
-from native_engine.desktop import device
-from native_engine.desktop.runtime import Runtime
+from app import device
+from app.runtime import Runtime
 
 
 class SetupTests(TestCase):

@@ -2,7 +2,7 @@
 import unittest
 from unittest.mock import Mock
 from test_ability_import import ROOT
-from native_engine.desktop.runtime import Runtime
+from app.runtime import Runtime
 
 class CacheTests(unittest.TestCase):
     def test_seek_restores_exact_frame_without_advancing(self):
@@ -31,7 +31,7 @@ class ReplayRecoveryTests(unittest.TestCase):
         self.assertIsNone(r.engine);self.assertIsNone(r.match);self.assertIsNone(r.replay)
         self.assertTrue(r.reconnect_required);self.assertFalse(r.checkpoints);self.assertFalse(r.hand_cache)
     def test_eight_and_sixteen_speeds_reach_native_protocol(self):
-        from native_engine.engine import RenderedEngine
+        from app.engine import RenderedEngine
         e=RenderedEngine();e.request=Mock(return_value={'ok':True})
         for speed in (8,16):
             e.set_speed(speed);e.request.assert_called_with(f'speed {speed}')

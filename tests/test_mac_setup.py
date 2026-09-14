@@ -7,7 +7,7 @@ from types import SimpleNamespace
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from test_ability_import import ROOT
-from native_engine.desktop import device
+from app import device
 
 
 class MacSetupTests(TestCase):

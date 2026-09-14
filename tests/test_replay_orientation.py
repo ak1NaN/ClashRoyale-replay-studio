@@ -2,7 +2,7 @@ import os
 import unittest
 from pathlib import Path
 from test_ability_import import ROOT
-from native_engine.desktop.importer import convert
+from app.importer import convert
 
 SOURCE = Path(
     os.environ.get(

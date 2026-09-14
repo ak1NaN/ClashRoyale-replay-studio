@@ -2,7 +2,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock
 from test_ability_import import ROOT
-from native_engine.desktop.runtime import Runtime
+from app.runtime import Runtime
 
 class DialogTests(unittest.TestCase):
     def test_only_dismisses_visible_game_system_dialog(self):

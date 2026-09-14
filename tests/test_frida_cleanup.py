@@ -2,7 +2,7 @@ from types import SimpleNamespace
 from unittest import TestCase
 from unittest.mock import Mock
 from test_ability_import import ROOT
-from native_engine.desktop.runtime import Runtime
+from app.runtime import Runtime
 
 class FridaCleanupTests(TestCase):
     def test_stops_server_and_only_removes_its_forward(self):

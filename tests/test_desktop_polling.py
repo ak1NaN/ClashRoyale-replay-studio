@@ -6,7 +6,7 @@ from test_ability_import import ROOT
 from PySide6.QtCore import QObject,QEvent
 from PySide6.QtWidgets import QApplication
 from PySide6.QtTest import QTest
-from native_engine.desktop.gui import Window
+from app.gui import Window
 
 class Changes(QObject):
     def __init__(self):super().__init__();self.enabled=0
