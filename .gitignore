@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.idea/
+data/
+dist/
+resources/frida-server*
+build/*
+!build/libcrprobe.so
+!build/provenance.json
