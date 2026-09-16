@@ -9,3 +9,4 @@ build/
 resources/frida-server*
 
 device-report.json
+node_modules/

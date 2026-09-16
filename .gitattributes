@@ -1,0 +1,4 @@
+# Keep generated Frida bundle offsets and native patch checksums stable.
+resources/mumu-dialogs.js text eol=lf linguist-generated=true
+resources/windows-probe.patch text eol=lf whitespace=-blank-at-eol
+*.so binary

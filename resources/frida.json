@@ -3,5 +3,11 @@
   "file": "frida-server-17.17.0-android-arm64.xz",
   "url": "https://github.com/frida/frida/releases/download/17.17.0/frida-server-17.17.0-android-arm64.xz",
   "archive_sha256": "09d1fad867b27d69562a79289f4c412e85867f5d38ab72877036ed35e4223021",
-  "sha256": "55ef78c3f3e7a55122ca7e0051e2a356d0ff1d9744d84c1660291f90400588e7"
+  "sha256": "55ef78c3f3e7a55122ca7e0051e2a356d0ff1d9744d84c1660291f90400588e7",
+  "x86_64": {
+    "file": "frida-server-17.17.0-android-x86_64.xz",
+    "url": "https://github.com/frida/frida/releases/download/17.17.0/frida-server-17.17.0-android-x86_64.xz",
+    "archive_sha256": "5f0671fbeaee0b1ee66b1536c3eae966d58765b7e3954ea49932e5931e43bd6c",
+    "sha256": "b34a33bdbcd2f737ef59811ca57a4c2675a528b7ffae71acd4c35337d3cb93f5"
+  }
 }

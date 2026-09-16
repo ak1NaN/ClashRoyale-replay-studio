@@ -53,9 +53,22 @@ class Worker(QObject):
                 result = getattr(self.runtime, kind)()
             self.finished.emit(kind, result)
         except Exception as e:
+            cleanup_error = ""
+            if kind == "load" and (
+                self.runtime.offline
+                or self.runtime.session is not None
+                or self.runtime.script is not None
+            ):
+                try:
+                    if self.runtime.offline:
+                        self.runtime.online()
+                    else:
+                        self.runtime.abort_prepare()
+                except Exception as cleanup:
+                    cleanup_error = f"；自动恢复失败：{cleanup}"
             with (DATA / "errors.log").open("a", encoding="utf-8") as f:
                 f.write(traceback.format_exc() + "\n")
-            self.failed.emit(kind, str(e))
+            self.failed.emit(kind, str(e) + cleanup_error)
 
 
 class SettingsDialog(QDialog):
@@ -80,7 +93,7 @@ class SettingsDialog(QDialog):
             form.addRow(label, edit)
         layout.addLayout(form)
         layout.addWidget(
-            QLabel("请先手动启动模拟器。支持 ARM64 Android 和匹配的游戏版本。")
+            QLabel("请先手动启动模拟器。支持原生 ARM64，或使用 libnb.so 的 Windows MuMu x86_64。")
         )
         buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
         buttons.accepted.connect(self.save)

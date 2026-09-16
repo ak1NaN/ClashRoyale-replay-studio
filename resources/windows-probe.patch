@@ -1,0 +1,92 @@
+diff --git a/vendor/firstlight/probe/cr_replay_probe.cpp b/vendor/firstlight/probe/cr_replay_probe.cpp
+index 90443a4..60b771d 100644
+--- a/vendor/firstlight/probe/cr_replay_probe.cpp
++++ b/vendor/firstlight/probe/cr_replay_probe.cpp
+@@ -1387,7 +1387,9 @@ bool install_translated_sha256_compatibility_shim(std::uintptr_t libg_base) {
+ }
+ 
+ extern "C" std::int32_t cr_render_gate_swap_buffers(void *display, void *surface) {
++#ifndef CR_MUMU_MAINLOOP
+   process_native_render_request_on_frame_thread();
++#endif
+   dismiss_native_dialogs_if_needed();
+   pthread_mutex_lock(&g_render_gate_mutex);
+   while (g_render_suppressed) {
+@@ -1539,6 +1541,11 @@ void process_native_render_request_on_frame_thread() {
+         }
+         g_native_render_submitted_sequence.store(sequence, std::memory_order_release);
+         g_original_replay_json_setter(replay_manager, native_string);
++#ifdef CR_MUMU_MAINLOOP
++        // Keep the outgoing scene owned by ReplayManager. Its normal transition
++        // unregisters and destroys it before constructing the new controller.
++        std::memcpy(static_cast<std::uint8_t *>(replay_manager) + 0x20, &prior_controller, sizeof(prior_controller));
++#endif
+         succeeded = true;
+       }
+     }
+@@ -2034,6 +2041,16 @@ bool format_native_entity_key_json(char *destination, std::size_t destination_si
+   return written >= 0 && static_cast<std::size_t>(written) < destination_size;
+ }
+ 
++bool is_offline_connection_event(std::int32_t event) {
++#ifdef CR_MUMU_MAINLOOP
++  // A warm MuMu session reports CONNECTION_LOST (4) after its socket times out,
++  // in addition to the cold-start CONNECTION_FAILED events (2 and 3).
++  return event == 2 || event == 3 || event == 4;
++#else
++  return event == 2 || event == 3;
++#endif
++}
++
+ bool suppress_offline_connection_error_if_needed() {
+   if (!g_offline_control_session_active.load(std::memory_order_acquire) || g_libg_base == 0) {
+     return false;
+@@ -2049,7 +2066,7 @@ bool suppress_offline_connection_error_if_needed() {
+   // stock TID_ERROR_POP_UP_CONNECTION_FAILED_TITLE path. Leaving either
+   // pending freezes ReplayBattleController's own clock; dispatching it via
+   // GameApp's generic handler can tear down the locally-owned battle scene.
+-  if (event != 2 && event != 3) {
++  if (!is_offline_connection_event(event)) {
+     return false;
+   }
+ 
+@@ -7719,7 +7736,7 @@ void game_app_pending_event_setter_hook(void *game_app, std::int32_t event, std:
+   if (original == nullptr) {
+     return;
+   }
+-  if (g_offline_control_session_active.load(std::memory_order_acquire) && (event == 2 || event == 3)) {
++  if (g_offline_control_session_active.load(std::memory_order_acquire) && is_offline_connection_event(event)) {
+     const std::uint64_t count =
+         g_native_offline_connection_errors_suppressed.fetch_add(1, std::memory_order_relaxed) + 1;
+     if (count <= 3) {
+@@ -8546,6 +8563,15 @@ bool install_inline_hook(std::uintptr_t libg_base, std::uintptr_t offset, const
+ #endif
+ }
+ 
++#ifdef CR_MUMU_MAINLOOP
++using ReplayManagerUpdate = void (*)(void *, float);
++ReplayManagerUpdate g_original_replay_manager_update = nullptr;
++void replay_manager_update_hook(void *manager, float delta) {
++  process_native_render_request_on_frame_thread();
++  g_original_replay_manager_update(manager, delta);
++}
++#endif
++
+ bool install_hooks(std::uintptr_t libg_base) {
+   g_libg_base = libg_base;
+   const bool translated_sha256_compatible = install_translated_sha256_compatibility_shim(libg_base);
+@@ -8590,6 +8616,14 @@ bool install_hooks(std::uintptr_t libg_base) {
+   g_logic_data_by_global_id = reinterpret_cast<LogicDataByGlobalId>(libg_base + kLogicDataByGlobalIdOffset);
+   g_location_tilemap_ensure = reinterpret_cast<LocationTileMapEnsure>(libg_base + kLocationTileMapEnsureOffset);
+   g_location_tilemap_lookup = reinterpret_cast<LocationTileMapLookup>(libg_base + kLocationTileMapLookupOffset);
++#ifdef CR_MUMU_MAINLOOP
++  const std::uint8_t mainloop_prologue[16] = {
++    0xe9,0x23,0xbc,0x6d,0xfd,0x7b,0x01,0xa9,0xf5,0x13,0x00,0xf9,0xf4,0x4f,0x03,0xa9
++  };
++  success &= install_inline_hook(libg_base, 0x00c8da38, mainloop_prologue,
++      reinterpret_cast<const void *>(&replay_manager_update_hook),
++      reinterpret_cast<void **>(&g_original_replay_manager_update), "ReplayManager::update");
++#endif
+   const NativeHookSpec runner_hooks[] = {
+       native_hook(kNativeReplayRunnerOffset, kNativeReplayRunnerPrologue, &native_replay_runner_hook,
+                   &g_original_native_replay_runner, "native replay pre-run", &g_hook_native_replay_runner),

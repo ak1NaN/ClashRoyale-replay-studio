@@ -1,11 +1,36 @@
-# Windows 开发分支（尚未完成回放实机验证）
+# Clash Royale Replay Studio · Windows
 
-此分支已加入 Windows GUI、UTF-8 文件读写、MuMu ADB 路径发现与 Windows 打包入口。
-**当前原生探针仍仅支持原生 ARM64 Android。Windows MuMu 若使用 x86_64 + ARM 转译，程序会停止准备，不会断网；这一组合尚不能保证回放。**
+导入 RoyaleAPI 保存的**独立对局 HTML**，在 Windows MuMu 的 Nulls Royale 原生游戏画面中播放重建回放。支持暂停、时间轴跳转和 0.25×～16× 倍速。
 
-## Windows 源码启动
+这是 `win` 分支的 Windows 预览版；Mac 用户请使用 [main 分支](https://github.com/ak1NaN/ClashRoyale-replay-studio/tree/main)及现有 [macOS Release](https://github.com/ak1NaN/ClashRoyale-replay-studio/releases)。本分支不替换 Mac Release。
 
-安装 64 位 Python 3.12，解压源码，在仓库根目录打开 PowerShell：
+## 已验证环境与限制
+
+- Windows 11 x64、MuMu 6.6.4.0、Android 12（x86_64 + `libnb.so` ARM 转译）、开启 root。
+- Nulls Royale **15.535.13**，匹配游戏库及已下载的资源；程序启动前会校验游戏库哈希，不支持任意最新版。
+- 已用一份真实 HTML（64 个动作）验证：导入、预演算、原生画面以 1× 连续播放至结局、精确跳转、各档倍速和退出恢复联网。
+- 当前是单机、单局实测，不保证所有 MuMu 或游戏版本兼容。HTML 缺少原始随机种子与秘密初手，回放是相容重建，时间、伤害和结局可能与原局不同。
+
+## 下载和使用
+
+在 [Windows 构建记录](https://github.com/ak1NaN/ClashRoyale-replay-studio/actions/workflows/windows.yml?query=branch%3Awin)中打开最新成功的 `win` 构建，从 **Artifacts** 下载 `ReplayStudio-Windows-x64-preview`（下载通常需要登录 GitHub）。
+
+解开下载的 artifact，再解压其中的 `ReplayStudio-Windows-x64-preview.zip`，保留完整的 `Replay Studio` 文件夹，运行 `Replay Studio.exe`。**不能只复制 exe**。压缩包附带 `SHA256SUMS.txt`；这是未签名预览程序，请先核对来源与校验值，不要关闭系统安全设置。
+
+1. 手动打开 MuMu，开启 ADB 和 root；安装匹配游戏版本，完成首次联网资源下载并进入游戏主界面。
+2. 打开 Replay Studio，导入独立对局 HTML，点击 **准备回放**。
+3. 等待预演算与游戏场景加载，点击播放；画面显示在模拟器里，控制窗口提供暂停、跳转和倍速。
+4. 正常关闭控制窗口会清理缓存、停止 Frida，并恢复游戏联网。
+
+程序会自动发现 MuMu 安装与运行实例；失败时在连接设置填写 `adb.exe` 路径和实际设备地址，例如 `127.0.0.1:16416`。端口因实例而异，不要照抄示例。不需要以管理员身份启动本程序。
+
+**联网影响：** 仅导入不会断网。准备回放时会临时阻止游戏联网；MuMu 缺少按应用过滤能力时，会临时断开整个模拟器外网，但保留 ADB 和本地回放通道。回放期间不要用该实例进行其他联网活动。正常退出会恢复联网；若程序意外中止，可重新打开程序使用恢复联网操作。程序不会自动下载游戏、升级游戏或启动模拟器。
+
+[如何保存 RoyaleAPI 独立对局 HTML](docs/import-html.md) · [Windows 开发与诊断](docs/windows-development.md)
+
+## 从源码启动
+
+安装 64 位 Python 3.12，在项目根目录执行：
 
 ```powershell
 py -3.12 -m venv .venv
@@ -14,142 +39,33 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe run.py
 ```
 
-先手动启动 MuMu，在其设置中查看 ADB 端口并开启 root。应用的连接设置可手动填写 MuMu 内的 `adb.exe`（旧版可能叫 `adb_server.exe`）和设备地址；默认 `127.0.0.1:16384` 不一定适用于所有版本/实例。不需要以管理员身份启动本程序。
+仓库已包含配套原生探针和 Java 辅助脚本，普通用户无需安装 NDK 或 Node.js。依赖下载需要联网；应用运行时不下载依赖。
 
-## 第一次测试请提供设备报告
-
-保存连接设置后，在同一 PowerShell 执行：
-
-```powershell
-.\.venv\Scripts\python.exe tools/check_device.py
-```
-
-把生成的 `device-report.json` 连同 MuMu 版本发回用于适配。报告只读取 Android 架构、Native Bridge、root 状态与游戏版本；不注入、不让游戏断网。此文件不提交仓库。
-
-## Windows 打包（必须在 Windows 上执行）
+## 测试与打包
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r tools/requirements.txt
 .\.venv\Scripts\python.exe -m unittest discover -s tests
+# 先关闭待覆盖的独立应用
 .\.venv\Scripts\python.exe tools/package.py
 ```
 
-输出为 `dist/Replay Studio/Replay Studio.exe`，分发时压缩整个 `Replay Studio` 目录，不能只复制 exe。普通安装的设置位于 `%LOCALAPPDATA%/ReplayStudio`，在 exe 旁放 `portable.flag` 可改为同目录 `data/`。
+输出为 `dist/Replay Studio/Replay Studio.exe`。GitHub Actions 会执行测试、打包并上传完整目录压缩包；CI 不具备 MuMu，不能代替实机播放验收。
 
-参考 IMAX9D 的[指定提交](https://github.com/IMAX9D/cr-native-sandbox/commit/64926887a5673126fb924d8d4c4e3a8ac210a3e0)：其 MuMu 路线使用外部 x86_64 读取器读取 ARM64 游戏内存，以普通触屏下牌；这不提供本项目需要的对局创建、原生快照恢复和无画面预演算。当前分支不复制其不同版本的游戏偏移。
+源码设置位于 `data/`；独立应用默认位于 `%LOCALAPPDATA%/ReplayStudio`。在 exe 旁放置 `portable.flag` 可使用同目录 `data/`，也可通过 `REPLAY_STUDIO_DATA` 指定目录。缓存仅在内存中，换局和正常退出会清理。
 
-Windows 回放验证通过前，不合并主分支、不替换 Mac Release。MuMu ADB 参考：[官方说明](https://www.mumuplayer.com/help/win/developers-essentials-manual.html)。
-
----
-
-# Clash Royale Replay Studio
-
-导入保存的 RoyaleAPI **独立对局 HTML**，在 Mac MuMu 中通过 Nulls Royale 原生游戏画面观看回放。支持暂停、时间轴瞬间跳转和 0.25×～16× 倍速。
-
-当前为 **Mac Apple Silicon 公开测试版**。暂不支持 Windows、Intel Mac 或任意最新版 Nulls。
-
-## 下载与使用
-
-从 [Releases](https://github.com/ak1NaN/ClashRoyale-replay-studio/releases) 下载 `ReplayStudio-macOS-arm64.zip`，解压打开 `.app`。**无需安装 Python、Qt、Frida 或 Android SDK。**
-
-1. 手动启动 Mac MuMu，开启模拟器 root，等待安卓桌面就绪。
-2. 安装 Nulls Royale **15.535.13**，完成首次联网资源下载；已验证资源为 **15.535.86**。建议随后退出游戏。
-3. 打开 Replay Studio，导入 HTML，点击 **准备回放**。
-4. 程序自动使用 MuMu 的 ADB、部署配套组件、让游戏断网，先无画面演算并缓存整场，再打开游戏回放画面。
-5. 播放、暂停或拖动时间轴；换局时重新导入 HTML。
-6. 正常退出会清理缓存、停止 Frida、恢复游戏联网并打开普通游戏。
-
-仅导入 HTML 不会断网。程序不会下载游戏、升级游戏或自动启动模拟器。多实例、非标准安装路径时，在连接设置中指定 ADB 和端口；默认端口为 `127.0.0.1:16384`。[MuMu 官方 ADB 说明](https://www.mumuplayer.com/help/mac/connect-adb.html)。
-
-此测试版尚未经过 Apple Developer ID 签名与公证，首次下载可能被 macOS 阻止。请核对来源，使用系统提供的正常允许打开流程；程序不会关闭系统安全设置。
-
-## 如何从 RoyaleAPI 获取对局 HTML
-
-**1. 找到要观看的对局。** 在 RoyaleAPI 玩家页面的 Battles（对战记录）中找到目标对局，点击图中橙色回放按钮。如果网站要求登录，请先登录。
-
-![在玩家对战记录中点击橙色回放按钮](docs/tuto1.png)
-
-**2. 打开独立对局页面。** 展开回放后向下滚动，在统计表下方点击 **Permalink**，进入只包含这一局的页面。
-
-![点击统计表下方的 Permalink](docs/tuto2.png)
-
-**3. 保存 HTML 并导入。** 等待独立对局页面加载完成，在 Mac 上按 **⌘S**（Windows 为 Ctrl+S）。如图选择 **页面源码**；其他浏览器可选择 **网页，仅 HTML**。保存为 `.html` 文件，然后在 Replay Studio 中点击 **导入 HTML** 选择它。
-
-![将独立对局页面保存为 HTML 页面源码](docs/tuto3.png)
-
-截图中的快捷键标注为 Ctrl+S，Mac 请使用 ⌘S。请保存独立对局页面的 HTML，不要保存为 PDF、截图或 `.webarchive`，也不要保存整个玩家的对战列表页。
-
-## 仓库结构
-
-本仓库只维护回放应用。训练观测、批量客户端、手动演示脚本和旧部署入口已移除。
+## 项目结构
 
 ```text
-app/          回放应用代码、卡牌表和界面资源
-resources/    编译好的原生探针、兼容版本和依赖校验信息
-tools/        下载构建依赖和打包 Mac 应用
-docs/         获取对局 HTML 的三张教程截图
-tests/        回放功能回归测试
-licenses/     上游与第三方许可、归属说明
+app/          界面、HTML 导入、回放控制和模拟器连接
+resources/    原生探针、Java 辅助脚本、版本及来源校验
+tools/        依赖下载、Windows/Mac 打包、实机诊断和探针构建
+docs/         使用教程和 Windows 开发说明
+tests/        回归测试
+licenses/     上游及第三方许可
 run.py        源码启动入口
-requirements.txt  应用依赖
 ```
 
-| `app/` 中的文件 | 作用 |
-| --- | --- |
-| `gui.py` | 窗口、导入、时间轴、倍速和工作线程 |
-| `runtime.py` | 预演算、逐 tick 缓存、播放、换局和退出清理 |
-| `device.py` | MuMu 连接、root、Frida 安装、版本检查、断网及注入 |
-| `importer.py` | 卡牌/等级/形态校验、方向转换、相容初手计算 |
-| `html_events.py` | 从保存的 HTML 提取出牌和技能事件，不执行网页脚本 |
-| `engine.py` | 回放所需的引擎通信、初始化和播放控制 |
-| `protocol.py` | 解析原生状态和手牌等数据 |
-| `match_config.py`、`standard_match.json` | 构造对局配置 |
-| `catalog.json` | 卡牌 ID、别名、稀有度和形态映射 |
-| `icon.png`、`__init__.py` | 图标及 Python 包标记 |
+Windows 使用独立的 `libcrprobe-mumu.so`，Mac 原有 `libcrprobe.so` 保持不变。Windows 原生补丁及构建来源记录随源码提供；详见开发说明。设备报告、玩家 HTML、日志、游戏库、NDK、虚拟环境和打包产物不提交 Git。
 
-`resources/libcrprobe.so` 是真正执行游戏逻辑的原生探针。当前版本与已验证引擎一致，未修改原生战斗逻辑。
-原生源码、编译脚本及上游测试保存在固定的 [v0.1.0 引擎基线](https://github.com/ak1NaN/ClashRoyale-replay-studio/tree/v0.1.0-macos-preview/vendor/firstlight)，其源码和二进制哈希记录在 `resources/provenance.json`。以后适配游戏版本时在引擎工程修改并编译，再更新这里的探针和兼容清单。
-
-## 从源码开发
-
-普通用户可以直接下载 Release 应用。运行源码需要 **Apple Silicon Mac 和 ARM64 Python 3.12**。下载 GitHub 的 **Source code (zip)** 并解压，在终端进入解压后的仓库根目录（能看到 `run.py` 和 `requirements.txt` 的目录）。
-
-**直接运行源码：**
-
-```sh
-python3.12 -m venv .venv
-arch -arm64 .venv/bin/python -m pip install -r requirements.txt
-arch -arm64 .venv/bin/python tools/fetch_deps.py
-arch -arm64 .venv/bin/python run.py
-```
-
-第一次安装依赖和下载 Frida 需要联网。若提示 `python3.12: command not found`，请先安装 Python 3.12 的 macOS 版本。无需自行编译原生探针，仓库已包含配套文件。
-
-启动前先打开 MuMu、开启 root，并准备好上文列出的匹配游戏版本及资源。窗口打开后导入独立对局 HTML，点击 **准备回放**。以后再次运行只需在同一目录执行最后一条命令。
-
-**可选：测试和打包为独立 App。** 仅打包时需要 PyInstaller：
-
-```sh
-arch -arm64 .venv/bin/python -m pip install -r tools/requirements.txt
-arch -arm64 .venv/bin/python -m unittest discover -s tests
-# 关闭待覆盖的应用后打包
-arch -arm64 .venv/bin/python tools/package.py
-```
-
-Frida 固定版本、官方来源和哈希见 `resources/frida.json`。构建时下载，应用运行时不下载依赖。打包过程自动清理中间文件。发布压缩包：
-
-```sh
-ditto -c -k --keepParent 'dist/Replay Studio.app' dist/ReplayStudio-macOS-arm64.zip
-shasum -a 256 dist/ReplayStudio-macOS-arm64.zip
-```
-
-源码设置在 `data/`，独立应用默认在 `~/Library/Application Support/ReplayStudio/`；可通过 `REPLAY_STUDIO_DATA` 覆盖。逐 tick 缓存只在内存中，换局和正常退出清理。
-
-## 兼容边界
-
-- 需要 ARM64 Android、root、匹配的 `libg.so` 和资源；游戏更新后可能需要重新适配引擎，不能只改版本号。
-- HTML 缺少原始随机种子与秘密初手，因此这是相容的重建模拟，不能保证每局的时间、伤害和结局与原局完全一致。
-- 缓存上限为 256 MiB 序列化状态，最多演算到游戏时钟 6 分钟；遇到不支持的卡牌或失败动作会停止。
-- 本地已验证 MuMu 1.4.11 上的组件部署、连续两局、精确跳转和退出恢复；尚未完成另一台干净 Mac 的分发验证。
-
-基于 [Clash-Royale-Battle-Engine](https://github.com/Jason-XII/Clash-Royale-Battle-Engine) 与 [FirstLight CR](https://gitlab.com/firstlight3/FirstLight_CR)。本仓库目前为公开测试版本，暂未为项目整体指定开源许可证。上游和第三方组件的许可保留在 `licenses/`。不包含游戏、MuMu、玩家 HTML 或个人设置，不隶属于 Supercell。
+基于 [Clash-Royale-Battle-Engine](https://github.com/Jason-XII/Clash-Royale-Battle-Engine) 与 [FirstLight CR](https://gitlab.com/firstlight3/FirstLight_CR)。本仓库目前为公开测试版本，暂未为项目整体指定开源许可证。上游和第三方组件的许可保留在 `licenses/`。不包含游戏、MuMu 或玩家 HTML，不隶属于 Supercell。

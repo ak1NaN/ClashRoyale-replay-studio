@@ -2,7 +2,9 @@ name: Windows preview build
 on:
   workflow_dispatch:
   push:
-    branches: [feature/windows]
+    branches: [win, feature/windows]
+  pull_request:
+    branches: [win]
 permissions:
   contents: read
 jobs:

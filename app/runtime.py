@@ -39,6 +39,7 @@ class Runtime(DeviceSession):
             except Exception:
                 pass
         self.session = self.script = None
+        self.dialog_script = None
         self.replay = self.match = None
         self.rules(False)
         try:
@@ -108,7 +109,14 @@ class Runtime(DeviceSession):
             self.schedule()
             self.cache_ready = True
         except Exception:
-            self.clear_cache()
+            # The game may have died while creating the native scene. Cleanup
+            # must not replace that original failure with a second socket error.
+            try:
+                self.clear_cache()
+            except Exception as cleanup_error:
+                self.close_connection()
+                self.reconnect_required = True
+                self.progress(f"回放缓存清理连接已失效：{cleanup_error}")
             raise
         self.progress("整场缓存完成，可以播放或拖动时间轴")
         return self.status()

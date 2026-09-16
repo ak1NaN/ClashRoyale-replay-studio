@@ -56,6 +56,12 @@ class Engine:
             self.close()
             raise
 
+    def checked(self, command):
+        result = self.request(command)
+        if not result.get("ok"):
+            raise RuntimeError(result.get("error", "engine command failed"))
+        return result
+
     def _capture(self, generation=0, cursor=0):
         state = State.decode(self.request(f"minimal {generation} {cursor}"))
         return state
@@ -68,8 +74,8 @@ class Engine:
             else json.loads(Path(__file__).with_name("standard_match.json").read_text(encoding="utf-8-sig"))
         )
         match["rndSeed"] = seed
-        self.request("configure " + json.dumps(match, separators=(",", ":")))
-        self.request(
+        self.checked("configure " + json.dumps(match, separators=(",", ":")))
+        self.checked(
             "step 90"
         )  # First playable boundary; execute the first action at tick 91.
         self.state = self._capture()
@@ -100,7 +106,13 @@ class RenderedEngine(Engine):
         sequence = accepted["sequence"]
         deadline = time.monotonic() + self.timeout
         while True:
-            status = self.request("status")
+            try:
+                status = self.request("status")
+            except (ConnectionError, OSError) as error:
+                raise ConnectionError(
+                    "创建原生回放画面时游戏连接中断（configure-native）；"
+                    "尚未恢复缓存快照，请检查游戏崩溃日志"
+                ) from error
             if (
                 status.get("nativeRenderReady")
                 and status.get("nativeRenderLoaded", 0) >= sequence
@@ -109,10 +121,10 @@ class RenderedEngine(Engine):
             if time.monotonic() >= deadline:
                 raise TimeoutError("native renderer did not create the battle scene")
             time.sleep(0.05)
-        paused = self.request("pause")
+        paused = self.checked("pause")
         current_tick = paused["tick"]
         if current_tick < 90:
-            self.request(f"advance-native {90 - current_tick}")
+            self.checked(f"advance-native {90 - current_tick}")
         self.state = self._capture()
         if self.state.tick != 90:
             raise RuntimeError(
@@ -123,7 +135,7 @@ class RenderedEngine(Engine):
     def set_speed(self, multiplier):
         if multiplier not in (0.25, 0.5, 1, 2, 4, 8, 16):
             raise ValueError("speed must be 0.25, 0.5, 1, 2, 4, 8, or 16")
-        return self.request(f"speed {multiplier:g}")
+        return self.checked(f"speed {multiplier:g}")
 
     def resume(self):
         result = self.request("resume")

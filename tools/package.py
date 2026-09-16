@@ -14,9 +14,13 @@ DATA_FILES = (
     "app/standard_match.json",
     "resources/engine.json",
     "resources/libcrprobe.so",
+    "resources/libcrprobe-mumu.so",
+    "resources/windows-provenance.json",
+    "resources/mumu-dialogs.js",
     "resources/provenance.json",
     "resources/frida.json",
     "resources/frida-server-17.17.0-android-arm64.xz",
+    "resources/frida-server-17.17.0-android-x86_64.xz",
 )
 
 

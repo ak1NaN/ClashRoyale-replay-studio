@@ -15,6 +15,7 @@ MuMu's ADB is used from the user's installation and is not redistributed.
 - Qt: https://code.qt.io/cgit/qt/qtbase.git/?h=v6.8.3 (LGPL-3.0; see included license texts)
 - Frida: https://github.com/frida/frida/releases/tag/17.17.0
 - Frida Core: https://github.com/frida/frida-core/tree/17.17.0 (wxWindows Library Licence 3.1)
+- Frida Java Bridge 7.0.13: https://github.com/frida/frida-java-bridge/tree/7.0.13 (LGPL-2.0 with wxWindows exception; see Frida-COPYING and Frida-COPYING.LIB). Windows bundles this bridge in `resources/mumu-dialogs.js`; rebuildable source and pinned dependencies are in `tools/frida-agent/`. Replace the bundle or rebuild it with `npm ci` followed by `npm run build` in that directory.
 - PyInstaller: https://github.com/pyinstaller/pyinstaller/tree/v6.22.2 (GPL with bootloader exception)
 
 Source builds allow replacement/relinking of Qt/PySide6 libraries. Reverse
