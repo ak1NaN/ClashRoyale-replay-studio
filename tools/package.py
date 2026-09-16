@@ -1,5 +1,6 @@
 """Build on the target host: macOS ARM64 or Windows x64."""
 
+import argparse
 import os
 from pathlib import Path
 import shutil
@@ -25,6 +26,11 @@ DATA_FILES = (
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--onefile", action="store_true", help="Build a standalone Windows exe")
+    args = parser.parse_args()
+    if args.onefile and sys.platform != "win32":
+        parser.error("--onefile is only supported on Windows")
     if sys.platform not in ("darwin", "win32"):
         raise SystemExit("Build on macOS or Windows.")
     for name in DATA_FILES:
@@ -57,9 +63,9 @@ def main():
             "--windowed",
             "--icon",
             str(icon),
-            "--onedir",
+            "--onefile" if args.onefile else "--onedir",
             "--name",
-            "Replay Studio",
+            "ReplayStudio-Windows-x64" if args.onefile else "Replay Studio",
             "--distpath",
             str(ROOT / "dist"),
             "--workpath",

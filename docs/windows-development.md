@@ -2,6 +2,8 @@
 
 本分支优先保证“HTML 导入 → 游戏原生画面播放”。不以 Mac 全功能等价或任意版本兼容为发布承诺。
 
+Windows 要求 Android 12 的 MuMu 实例。Android 15 下已反馈 Nulls Royale 无法启动，原因未明，暂不支持；不要混淆 Android 系统版本与 MuMu 软件版本。
+
 ## 实机诊断
 
 先关闭其他 Replay Studio 控制窗口，打开 MuMu、开启 root，并让匹配版本的游戏完成资源下载。诊断会临时断网，结束或失败后自动尝试恢复联网。

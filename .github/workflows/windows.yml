@@ -1,4 +1,4 @@
-name: Windows preview build
+name: Windows 预览版构建
 on:
   workflow_dispatch:
   push:
@@ -24,7 +24,7 @@ jobs:
       - run: python tools/fetch_deps.py
       - run: python -m unittest discover -s tests
       - run: python tools/package.py
-      - name: Archive whole application directory
+      - name: 压缩完整应用并生成校验文件
         shell: pwsh
         run: |
           Compress-Archive -Path 'dist/Replay Studio' -DestinationPath dist/ReplayStudio-Windows-x64-preview.zip

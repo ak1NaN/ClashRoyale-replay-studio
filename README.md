@@ -1,10 +1,12 @@
-# Clash Royale Replay Studio · Windows
+# 皇室战争回放工作室 · Windows 预览版
 
 导入 RoyaleAPI 保存的**独立对局 HTML**，在 Windows MuMu 的 Nulls Royale 原生游戏画面中播放重建回放。支持暂停、时间轴跳转和 0.25×～16× 倍速。
 
 这是 `win` 分支的 Windows 预览版；Mac 用户请使用 [main 分支](https://github.com/ak1NaN/ClashRoyale-replay-studio/tree/main)及现有 [macOS Release](https://github.com/ak1NaN/ClashRoyale-replay-studio/releases)。本分支不替换 Mac Release。
 
 ## 已验证环境与限制
+
+**Windows 版必须使用 Android 12 的 MuMu 模拟器实例。不要使用 Android 15：据当前实测反馈，Android 15 下 Nulls Royale 无法打开，原因尚未查明，暂不支持。这里的 12/15 指模拟器的 Android 系统版本，不是 MuMu 软件版本。**
 
 - Windows 11 x64、MuMu 6.6.4.0、Android 12（x86_64 + `libnb.so` ARM 转译）、开启 root。
 - Nulls Royale **15.535.13**，匹配游戏库及已下载的资源；程序启动前会校验游戏库哈希，不支持任意最新版。
@@ -13,7 +15,13 @@
 
 ## 下载和使用
 
-在 [Windows 构建记录](https://github.com/ak1NaN/ClashRoyale-replay-studio/actions/workflows/windows.yml?query=branch%3Awin)中打开最新成功的 `win` 构建，从 **Artifacts** 下载 `ReplayStudio-Windows-x64-preview`（下载通常需要登录 GitHub）。
+优先从 [Windows 预览版发布页](https://github.com/ak1NaN/ClashRoyale-replay-studio/releases/tag/v0.1.0-windows-preview)下载：
+
+- `ReplayStudio-Windows-x64.exe`：独立运行版，直接打开，无需安装 Python；首次启动需要解压内置组件，稍等片刻。
+- `ReplayStudio-Windows-x64-preview.zip`：目录版，解压后运行 `Replay Studio.exe`，必须保留整个文件夹。
+- `SHA256SUMS.txt`：发布文件的 SHA256 校验值。
+
+开发构建仍可从 [Windows 构建记录](https://github.com/ak1NaN/ClashRoyale-replay-studio/actions/workflows/windows.yml?query=branch%3Awin)的 **Artifacts** 下载（通常需要登录 GitHub）。
 
 解开下载的 artifact，再解压其中的 `ReplayStudio-Windows-x64-preview.zip`，保留完整的 `Replay Studio` 文件夹，运行 `Replay Studio.exe`。**不能只复制 exe**。压缩包附带 `SHA256SUMS.txt`；这是未签名预览程序，请先核对来源与校验值，不要关闭系统安全设置。
 
@@ -48,6 +56,8 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m unittest discover -s tests
 # 先关闭待覆盖的独立应用
 .\.venv\Scripts\python.exe tools/package.py
+# 可选：生成独立 exe
+.\.venv\Scripts\python.exe tools/package.py --onefile
 ```
 
 输出为 `dist/Replay Studio/Replay Studio.exe`。GitHub Actions 会执行测试、打包并上传完整目录压缩包；CI 不具备 MuMu，不能代替实机播放验收。
