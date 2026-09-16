@@ -1,5 +1,6 @@
 # Replay Studio · Windows 预览版
-此版本使用codex迁移，下列readme由ai生成，如有问题请见谅
+# 由于N服未更新英雄冰法和亡灵巨人，选择对局的时候请勿选择含有这两张卡的对局进行回放重现
+# 此版本使用codex迁移，下列readme由ai生成，如有问题请见谅
 导入 RoyaleAPI 保存的**独立对局 HTML**，在 Windows MuMu 的 Nulls Royale 原生游戏画面中播放重建回放。支持暂停、时间轴跳转和 0.25×～16× 倍速。
 
 这是 `win` 分支的 Windows 预览版；Mac 用户请使用 [main 分支](https://github.com/ak1NaN/ClashRoyale-replay-studio/tree/main)及现有 [macOS Release](https://github.com/ak1NaN/ClashRoyale-replay-studio/releases)。本分支不替换 Mac Release。
