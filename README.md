@@ -16,7 +16,7 @@
 
 ## 下载和使用
 
-优先从 [Windows 预览版发布页](https://github.com/ak1NaN/ClashRoyale-replay-studio/releases/tag/v0.1.0-windows-preview)下载：
+优先从 [Windows 预览版发布页](https://github.com/ak1NaN/ClashRoyale-replay-studio/releases/tag/v0.1.1-windows-preview)下载：
 
 - `ReplayStudio-Windows-x64.exe`：独立运行版，直接打开，无需安装 Python；首次启动需要解压内置组件，稍等片刻。
 - `ReplayStudio-Windows-x64-preview.zip`：目录版，解压后运行 `Replay Studio.exe`，必须保留整个文件夹。
@@ -78,5 +78,7 @@ run.py        源码启动入口
 ```
 
 Windows 使用独立的 `libcrprobe-mumu.so`，Mac 原有 `libcrprobe.so` 保持不变。Windows 原生补丁及构建来源记录随源码提供；详见开发说明。设备报告、玩家 HTML、日志、游戏库、NDK、虚拟环境和打包产物不提交 Git。
+
+Windows 安装包仅包含 x86_64 Frida 服务端，不包含 ARM64 Frida 服务端或 Mac 专用探针。MuMu 转译运行 ARM64 游戏所必需的 `libcrprobe-mumu.so` 仍保留；Mac 打包仍包含其自身的 ARM64 组件。
 
 基于 [Clash-Royale-Battle-Engine](https://github.com/Jason-XII/Clash-Royale-Battle-Engine) 与 [FirstLight CR](https://gitlab.com/firstlight3/FirstLight_CR)。本仓库目前为公开测试版本，暂未为项目整体指定开源许可证。上游和第三方组件的许可保留在 `licenses/`。不包含游戏、MuMu 或玩家 HTML，不隶属于 Supercell。

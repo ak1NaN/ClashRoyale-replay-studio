@@ -3,12 +3,15 @@
 import hashlib
 import json
 import ssl
+import sys
 from pathlib import Path
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 m = json.loads((ROOT / "resources/frida.json").read_text(encoding="utf-8"))
-for server in (m, m["x86_64"]):
+if sys.platform not in ("win32", "darwin"):
+    raise SystemExit("Build on macOS or Windows.")
+for server in (m["x86_64"] if sys.platform == "win32" else m,):
     p = ROOT / "resources" / server["file"]
     if not p.exists() or hashlib.sha256(p.read_bytes()).hexdigest() != server["archive_sha256"]:
         with urllib.request.urlopen(

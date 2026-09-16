@@ -14,15 +14,25 @@ DATA_FILES = (
     "app/icon.png",
     "app/standard_match.json",
     "resources/engine.json",
-    "resources/libcrprobe.so",
-    "resources/libcrprobe-mumu.so",
-    "resources/windows-provenance.json",
-    "resources/mumu-dialogs.js",
     "resources/provenance.json",
     "resources/frida.json",
-    "resources/frida-server-17.17.0-android-arm64.xz",
-    "resources/frida-server-17.17.0-android-x86_64.xz",
 )
+
+
+def data_files(platform):
+    if platform == "win32":
+        return DATA_FILES + (
+            "resources/libcrprobe-mumu.so",
+            "resources/windows-provenance.json",
+            "resources/mumu-dialogs.js",
+            "resources/frida-server-17.17.0-android-x86_64.xz",
+        )
+    if platform == "darwin":
+        return DATA_FILES + (
+            "resources/libcrprobe.so",
+            "resources/frida-server-17.17.0-android-arm64.xz",
+        )
+    raise ValueError("Unsupported build platform")
 
 
 def main():
@@ -33,7 +43,8 @@ def main():
         parser.error("--onefile is only supported on Windows")
     if sys.platform not in ("darwin", "win32"):
         raise SystemExit("Build on macOS or Windows.")
-    for name in DATA_FILES:
+    files = data_files(sys.platform)
+    for name in files:
         if not (ROOT / name).is_file():
             raise SystemExit(f"Missing {name}; run tools/fetch_deps.py first.")
     (ROOT / "build").mkdir(exist_ok=True)
@@ -90,7 +101,7 @@ def main():
             "QtVirtualKeyboard",
         ):
             cmd += ["--exclude-module", "PySide6." + name]
-        for name in DATA_FILES:
+        for name in files:
             cmd += ["--add-data", f"{ROOT/name}:{Path(name).parent.as_posix()}"]
         cmd += ["--add-data", f'{ROOT/"licenses"}:licenses', str(ROOT / "run.py")]
         subprocess.run(
