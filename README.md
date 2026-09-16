@@ -1,5 +1,5 @@
 # Clash Royale Replay Studio
-
+# 由于N服未更新英雄冰法和亡灵巨人，选择对局的时候请勿选择含有这两张卡的对局进行回放重现
 导入保存的 RoyaleAPI **独立对局 HTML**，在 Mac MuMu 中通过 Nulls Royale 原生游戏画面观看回放。支持暂停、时间轴瞬间跳转和 0.25×～16× 倍速。
 
 当前为 **Mac Apple Silicon 公开测试版**。Windows版本请查看win分支，并且该项目使用大量vibecoding，可能存在内容繁多和代码史山的问题，暂未优化，请见谅
