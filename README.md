@@ -2,9 +2,7 @@
 
 导入保存的 RoyaleAPI **独立对局 HTML**，在 Mac MuMu 中通过 Nulls Royale 原生游戏画面观看回放。支持暂停、时间轴瞬间跳转和 0.25×～16× 倍速。
 
-当前为 **Mac Apple Silicon 公开测试版**。暂不支持 Windows、Intel Mac 或任意最新版 Nulls。
-
-## 下载与使用
+当前为 **Mac Apple Silicon 公开测试版**。Windows版本请查看win分支，并且该项目使用大量vibecoding，可能存在内容繁多和代码史山的问题，暂未优化，请见谅
 
 从 [Releases](https://github.com/ak1NaN/ClashRoyale-replay-studio/releases) 下载 `ReplayStudio-macOS-arm64.zip`，解压打开 `.app`。**无需安装 Python、Qt、Frida 或 Android SDK。**
 
